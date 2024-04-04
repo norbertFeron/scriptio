@@ -1,14 +1,14 @@
 import { EditorContent, Editor } from "@tiptap/react";
 import { useEffect, useState } from "react";
 
-import editor_ from "./EditorComponent.module.css";
+import styles from "./Screenplay.module.css";
 import { join } from "@src/lib/utils/misc";
 
-type Props = {
+type ScreenplayProps = {
     editor: Editor | null;
 };
 
-const EditorComponent = ({ editor }: Props) => {
+const Screenplay = ({ editor }: ScreenplayProps) => {
     const [pages, setPages] = useState<number>(0);
 
     useEffect(() => {
@@ -23,10 +23,10 @@ const EditorComponent = ({ editor }: Props) => {
     }, []);
 
     return (
-        <div id="editor" className={editor_.container}>
-            <div className={editor_.page_counter}>
+        <div id="editor" className={styles.container}>
+            <div className={styles.page_counter}>
                 {Array.from({ length: pages }, (_, page) => (
-                    <p key={page} className={join(editor_.page_count, "unselectable")}>
+                    <p key={page} className={join(styles.page_count, "unselectable")}>
                         p.{page + 1}
                     </p>
                 ))}
@@ -36,4 +36,4 @@ const EditorComponent = ({ editor }: Props) => {
     );
 };
 
-export default EditorComponent;
+export default Screenplay;

@@ -1,15 +1,15 @@
-import EditorAndSidebar from "./EditorAndSidebar";
+import ScreenplayAndSidebars from "./ScreenplayAndSidebars";
 import { useSettings } from "@src/lib/utils/hooks";
 import { useEffect, useState } from "react";
 import { Project } from "@src/lib/utils/types";
 
-import page from "./EditorContainer.module.css";
+import styles from "./ScreenplayWrapper.module.css";
 
-type Props = {
+type ScreenplayWrapperProps = {
     project: Project;
 };
 
-const EditorContainer = ({ project }: Props) => {
+const ScreenplayWrapper = ({ project }: ScreenplayWrapperProps) => {
     const { data: settings } = useSettings();
     const [settingsCSS, setSettingsCSS] = useState("");
 
@@ -29,10 +29,10 @@ const EditorContainer = ({ project }: Props) => {
     }, [settings]);
 
     return (
-        <div id={page.container} className={settingsCSS}>
-            <EditorAndSidebar project={project} />
+        <div id={styles.container} className={settingsCSS}>
+            <ScreenplayAndSidebars project={project} />
         </div>
     );
 };
 
-export default EditorContainer;
+export default ScreenplayWrapper;

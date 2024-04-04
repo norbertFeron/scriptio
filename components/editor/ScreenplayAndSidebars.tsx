@@ -1,5 +1,5 @@
 /* Components */
-import EditorComponent from "./EditorComponent";
+import Screenplay from "./Screenplay";
 import EditorSidebarFormat from "./sidebar/EditorSidebarFormat";
 import EditorSidebarNavigation from "./sidebar/EditorSidebarNavigation";
 import ContextMenu from "./sidebar/ContextMenu";
@@ -14,22 +14,21 @@ import { Project } from "@src/lib/utils/types";
 import { computeFullCharactersData } from "@src/lib/editor/characters";
 
 /* Styles */
-import editor_ from "./EditorAndSidebar.module.css";
+import styles from "./ScreenplayAndSidebars.module.css";
 import { ProjectContext } from "@src/context/ProjectContext";
-import { applyElement, insertElement, useScriptioEditor } from "@src/lib/editor/editor";
+import { applyElement, insertElement, useScreenplayEditor } from "@src/lib/editor/editor";
 import { Popup } from "@components/popup/Popup";
 
-type EditorAndSidebarProps = {
+type ScreenplayAndSidebarsProps = {
     project: Project;
 };
 
-const EditorAndSidebar = ({ project }: EditorAndSidebarProps) => {
+const ScreenplayAndSidebars = ({ project }: ScreenplayAndSidebarsProps) => {
     const userCtx = useContext(UserContext);
     const projectCtx = useContext(ProjectContext);
 
     const [selectedStyles, setSelectedStyles] = useState<Style>(Style.None);
     const [selectedElement, setSelectedElement] = useState<ScreenplayElement>(ScreenplayElement.Action);
-    const [isNavigationActive, setIsNavigationActive] = useState<boolean>(true);
 
     /* Suggestion menu */
     const [suggestions, updateSuggestions] = useState<string[]>([]);
@@ -41,10 +40,10 @@ const EditorAndSidebar = ({ project }: EditorAndSidebarProps) => {
 
     const setActiveElement = (element: ScreenplayElement, applyStyle = true) => {
         setSelectedElement(element);
-        if (applyStyle && editorView) applyElement(editorView, element);
+        if (applyStyle && screenplayEditor) applyElement(screenplayEditor, element);
     };
 
-    const editorView = useScriptioEditor(
+    const screenplayEditor = useScreenplayEditor(
         project.screenplay,
         setActiveElement,
         setSelectedStyles,
@@ -52,7 +51,7 @@ const EditorAndSidebar = ({ project }: EditorAndSidebarProps) => {
         updateSuggestionData
     );
 
-    editorView?.setOptions({
+    screenplayEditor?.setOptions({
         autofocus: "end",
         editorProps: {
             handleKeyDown(view: any, event: any) {
@@ -97,7 +96,7 @@ const EditorAndSidebar = ({ project }: EditorAndSidebarProps) => {
                         }
                     }
 
-                    insertElement(editorView, newNode, selection.anchor);
+                    insertElement(screenplayEditor, newNode, selection.anchor);
                     return true; // prevent default new line
                 }
 
@@ -161,20 +160,20 @@ const EditorAndSidebar = ({ project }: EditorAndSidebarProps) => {
     useEffect(() => {
         computeFullScenesData(project.screenplay, projectCtx);
         computeFullCharactersData(project.screenplay, projectCtx);
-    }, [editorView]);
+    }, [screenplayEditor]);
 
     const onScroll = (e: React.UIEvent<HTMLDivElement, UIEvent>) => {
         if (suggestions.length > 0) updateSuggestions([]);
     };
 
     return (
-        <div className={editor_.editor_and_sidebar}>
+        <div className={styles.container}>
             <ContextMenu />
             {suggestions.length > 0 && <SuggestionMenu suggestions={suggestions} suggestionData={suggestionData} />}
             <Popup />
             <EditorSidebarNavigation />
-            <div className={editor_.container} onScroll={onScroll}>
-                <EditorComponent editor={editorView} />
+            <div className={styles.screenplay} onScroll={onScroll}>
+                <Screenplay editor={screenplayEditor} />
             </div>
             <EditorSidebarFormat
                 selectedStyles={selectedStyles}
@@ -186,4 +185,4 @@ const EditorAndSidebar = ({ project }: EditorAndSidebarProps) => {
     );
 };
 
-export default EditorAndSidebar;
+export default ScreenplayAndSidebars;

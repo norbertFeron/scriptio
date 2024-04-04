@@ -11,7 +11,7 @@ import item from "./SidebarItem.module.css";
 
 const SidebarCharacterItem = ({ character }: CharacterContextProps) => {
     const { updateContextMenu } = useContext(UserContext);
-    const { editor } = useContext(ProjectContext);
+    const { screenplayEditor } = useContext(ProjectContext);
 
     const handleDropdown = (e: any) => {
         e.preventDefault();
@@ -26,7 +26,7 @@ const SidebarCharacterItem = ({ character }: CharacterContextProps) => {
 
     const handleDoubleClick = () => {
         // paste character name on double click
-        pasteText(editor!, character.name);
+        pasteText(screenplayEditor!, character.name);
     };
 
     return (

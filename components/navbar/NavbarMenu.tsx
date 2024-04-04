@@ -44,10 +44,10 @@ type NavbarMenuProps = {
 const NavbarMenu = ({ project }: NavbarMenuProps) => {
     const userCtx = useContext(UserContext);
     const projectCtx = useContext(ProjectContext);
-    const { editor, updateSaveStatus } = projectCtx;
+    const { screenplayEditor, updateSaveStatus } = projectCtx;
 
     const importFile = () => {
-        if (!editor) return;
+        if (!screenplayEditor) return;
 
         var input = document.createElement("input");
         input.type = "file";
@@ -63,7 +63,7 @@ const NavbarMenu = ({ project }: NavbarMenuProps) => {
                     const json = generateJSON(html, SCRIPTIO_EXTENSIONS);
 
                     updateSaveStatus(SaveStatus.Saving);
-                    replaceScreenplay(editor, json);
+                    replaceScreenplay(screenplayEditor, json);
                     computeFullCharactersData(json, projectCtx);
                     computeFullScenesData(json, projectCtx);
                     saveScreenplay(projectCtx, json);
