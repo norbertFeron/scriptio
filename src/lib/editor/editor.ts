@@ -1,6 +1,6 @@
 import { Editor, JSONContent, useEditor } from "@tiptap/react";
-import { SaveStatus, ScreenplayElement, Style } from "../utils/enums";
-import { saveScreenplay } from "../utils/requests";
+import { EditorElement, SaveStatus, ScreenplayElement, Style, TitlePageElement } from "../utils/enums";
+import { saveScreenplay, saveTitlePage } from "../utils/requests";
 import { ProjectContext, ProjectContextType } from "@src/context/ProjectContext";
 
 import { CustomBold, CustomItalic, CustomUnderline, Screenplay } from "@src/Screenplay";
@@ -23,7 +23,7 @@ export const applyMarkToggle = (editor: Editor, style: Style) => {
     if (style & Style.Underline) editor.commands.toggleUnderline();
 };
 
-export const applyElement = (editor: Editor, element: ScreenplayElement) => {
+export const applyElement = (editor: Editor, element: EditorElement) => {
     editor.chain().focus().setNode("Screenplay", { class: element }).run();
 };
 
@@ -64,8 +64,8 @@ export const replaceOccurrences = (editor: Editor, oldWord: string, newWord: str
     editor.chain().focus().insertContentAt({ from: 0, to: 4 }, newWord).run();
 };
 
-export const replaceScreenplay = (editor: Editor, screenplay: JSONContent) => {
-    editor.commands.setContent(screenplay);
+export const replaceScreenplay = (editor: Editor, content: JSONContent) => {
+    editor.commands.setContent(content);
 };
 
 export const getStylesFromMarks = (marks: any[]): Style => {
@@ -83,13 +83,17 @@ export const getStylesFromMarks = (marks: any[]): Style => {
 //          EDITOR STATE          //
 // ------------------------------ //
 
-const SCREENPLAY_SAVE_DELAY = 2000;
+const EDITOR_SAVE_DELAY = 2000;
 const SCENE_UPDATE_DELAY = 500;
 const CHARACTERS_UPDATE_DELAY = 500;
 
 const deferredScreenplaySave = debounce((screenplay: JSONContent, projectCtx: ProjectContextType) => {
     saveScreenplay(projectCtx, screenplay);
-}, SCREENPLAY_SAVE_DELAY);
+}, EDITOR_SAVE_DELAY);
+
+const deferredTitlePageSave = debounce((titlePage: JSONContent, projectCtx: ProjectContextType) => {
+    saveTitlePage(projectCtx, titlePage);
+}, EDITOR_SAVE_DELAY);
 
 export const deferredSceneUpdate = debounce((screenplay: JSONContent, projectCtx: ProjectContextType) => {
     computeFullScenesData(screenplay, projectCtx);
@@ -149,20 +153,11 @@ const processAutoComplete = (
     }
 };
 
-export const SCRIPTIO_EXTENSIONS = [
-    // default
-    Document,
-    Text,
-    History,
-    CustomBold,
-    CustomItalic,
-    CustomUnderline,
+const BASE_EXTENSIONS = [Document, Text, History, CustomBold, CustomItalic, CustomUnderline];
+export const TITLE_PAGE_EXTENSIONS = [...BASE_EXTENSIONS, Screenplay];
+export const SCREENPLAY_EXTENSIONS = [...BASE_EXTENSIONS, Screenplay];
 
-    // scriptio
-    Screenplay,
-];
-
-export const useScriptioEditor = (
+export const useScreenplayEditor = (
     screenplay: JSONContent,
     setActiveElement: (element: ScreenplayElement, applyStyle: boolean) => void,
     setSelectedStyles: (style: Style) => void,
@@ -171,7 +166,7 @@ export const useScriptioEditor = (
 ) => {
     const projectCtx = useContext(ProjectContext);
     const editorView = useEditor({
-        extensions: SCRIPTIO_EXTENSIONS,
+        extensions: SCREENPLAY_EXTENSIONS,
 
         // update on each screenplay update
         onUpdate({ editor }) {
@@ -183,7 +178,7 @@ export const useScriptioEditor = (
         },
 
         onCreate({ editor }) {
-            projectCtx.updateEditor(editor as Editor);
+            projectCtx.updateScreenplayEditor(editor as Editor);
             replaceScreenplay(editor as Editor, screenplay);
         },
 
@@ -202,6 +197,39 @@ export const useScriptioEditor = (
                 updateSuggestions,
                 updateSuggestionsData
             );*/
+        },
+    });
+    return editorView;
+};
+
+export const useTitlePageEditor = (
+    titlePage: JSONContent,
+    setActiveElement: (element: TitlePageElement, applyStyle: boolean) => void,
+    setSelectedStyles: (style: Style) => void
+) => {
+    const projectCtx = useContext(ProjectContext);
+    const editorView = useEditor({
+        extensions: TITLE_PAGE_EXTENSIONS,
+
+        // update on each title page update
+        onUpdate({ editor }) {
+            const screenplay = editor.getJSON();
+            projectCtx.updateSaveStatus(SaveStatus.Saving);
+            deferredTitlePageSave(screenplay, projectCtx);
+        },
+
+        onCreate({ editor }) {
+            projectCtx.updateTitleEditor(editor as Editor);
+            replaceScreenplay(editor as Editor, titlePage);
+        },
+
+        // update active on caret update
+        onSelectionUpdate({ editor, transaction }) {
+            const anchor = (transaction as any).curSelection.$anchor;
+            const elementAnchor = anchor.parent.attrs.class;
+
+            setActiveElement(elementAnchor, false);
+            if (anchor.nodeBefore) setSelectedStyles(getStylesFromMarks(anchor.nodeBefore.marks));
         },
     });
     return editorView;

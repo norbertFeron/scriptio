@@ -1,30 +1,11 @@
-/*
-Copyright (c) 2012-2013 Nima Yousefi & John August
+:root {
+    --editor-left-margin: 1.5in;
+    --editor-right-margin: 1in;
+    --editor-top-padding: 1in;
+    --editor-bottom-padding: 1in;
 
-Permission is hereby granted, free of charge, to any person obtaining a copy 
-of this software and associated documentation files (the "Software"), to 
-deal in the Software without restriction, including without limitation the 
-rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
-sell copies of the Software, and to permit persons to whom the Software is 
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in 
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
-IN THE SOFTWARE.
-*/
-
-/*
-Inspired by Scrippet CSS
-Scrippet is a CSS template designed for including short sections of screenplay-formatted material in blog posts.
-Originally developed by John August - johnaugust.com
-*/
+    --scene-count-visibility: visible;
+}
 
 .ProseMirror:focus {
     /* Prevent outline from appearing when focused on screenplay */
@@ -32,26 +13,24 @@ Originally developed by John August - johnaugust.com
 }
 
 .ProseMirror {
-    position: absolute;
-    width: 586px;
     min-height: 1100px;
 
     /* Screenplay margins */
-    margin-left: 1.5in;
-    margin-right: 0.95in;
-    padding-block: 1in;
+    margin-left: var(--editor-left-margin);
+    margin-right: var(--editor-right-margin);
+    padding-top: var(--editor-top-padding);
+    padding-bottom: var(--editor-bottom-padding);
 }
 
 .ProseMirror p,
 .ProseMirror span {
     /* Default screenplay text attributes */
     font-family: "Courier Prime", monospace;
+    color: var(--editor-text);
     font-size: 12pt;
     text-align: left;
-    letter-spacing: -0.4px !important;
-    line-height: 17px !important;
+    line-height: 17px;
     margin-bottom: 17px;
-    color: var(--editor-text);
 }
 
 /* Editor styles */
@@ -79,7 +58,7 @@ span.underline {
 
 /* Editor elements */
 .action {
-    line-height: 17px !important;
+    line-height: 17px;
     text-align: justify;
 }
 
@@ -91,7 +70,7 @@ span.underline {
     display: inline-block;
     text-transform: uppercase;
     font-weight: bold;
-    line-height: 20px !important;
+    line-height: 20px;
     counter-increment: scenenumber;
 }
 
@@ -99,32 +78,34 @@ span.underline {
     content: counter(scenenumber) ".";
     position: absolute;
     margin-left: -75px;
+    visibility: var(--scene-count-visibility);
 }
 
 /* Dialogue */
 .dialogue {
-    padding-inline: 1.2in !important;
+    padding-left: 1in;
+    padding-right: 1.55in;
 }
 
 .dialogue + .parenthetical {
-    margin-top: -17px !important;
+    margin-top: -17px;
 }
 
 .character {
-    padding-left: 2.2in !important;
+    padding-left: 2in;
     text-transform: uppercase;
 }
 
 .character + .parenthetical,
 .character + .dialogue {
-    margin-top: -17px !important;
+    margin-top: -17px;
 }
 
 /* Parenthetical */
 .parenthetical {
-    padding-left: 1.9in !important;
-    padding-right: 2.1in !important;
-    margin-bottom: 0 !important;
+    padding-left: 1.5in;
+    padding-right: 2in;
+    margin-bottom: 0;
 }
 
 .parenthetical::before {
@@ -145,11 +126,12 @@ span.underline {
     content: ":";
 }
 
+/* Section */
 .section {
     text-transform: uppercase;
     text-align: center !important;
     text-decoration: underline;
-    line-height: 20px !important;
+    line-height: 20px;
     counter-increment: actnumber;
 }
 

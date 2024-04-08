@@ -7,19 +7,19 @@ import { join } from "@src/lib/utils/misc";
 import sidebar from "../sidebar/EditorSidebar.module.css";
 import EditorTab from "../EditorTab";
 
-type TitleSidebarFormatProps = {
+type TitlePageSidebarProps = {
     selectedStyles: Style;
     setActiveStyles: Dispatch<SetStateAction<Style>>;
     selectedElement: TitlePageElement;
     setActiveElement: (activeElement: TitlePageElement) => void;
 };
 
-const ScreenplayTitleSidebar = ({
+const TitlePageSidebar = ({
     selectedStyles,
     setActiveStyles,
     selectedElement,
     setActiveElement,
-}: TitleSidebarFormatProps) => {
+}: TitlePageSidebarProps) => {
     const { titleEditor } = useContext(ProjectContext);
 
     return (
@@ -59,4 +59,4 @@ const ScreenplayTitleSidebar = ({
     );
 };
 
-export default ScreenplayTitleSidebar;
+export default TitlePageSidebar;

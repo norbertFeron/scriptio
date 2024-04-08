@@ -10,6 +10,7 @@ import page from "./SettingsPageContainer.module.css";
 import layout from "../utils/Layout.module.css";
 import form from "../utils/Form.module.css";
 import { join } from "@src/lib/utils/misc";
+import { Theme } from "@src/lib/utils/enums";
 
 const SettingsPageContainer = () => {
     const { data: user } = useUser();
@@ -39,7 +40,7 @@ const SettingsPageContainer = () => {
     }
 
     const toggleTheme = () => {
-        setTheme(theme === "light" ? "dark" : "light");
+        setTheme(theme == Theme.Light ? Theme.Dark : Theme.Light);
     };
 
     const resetFromInfo = () => {
@@ -130,7 +131,7 @@ const SettingsPageContainer = () => {
                     <div className={page.element}>
                         <div className={page.element_header}>
                             <p>Dark theme</p>
-                            <input type="checkbox" onClick={toggleTheme} defaultChecked={theme === "dark"} />
+                            <input type="checkbox" onClick={toggleTheme} defaultChecked={theme == Theme.Dark} />
                         </div>
                         <hr />
                     </div>

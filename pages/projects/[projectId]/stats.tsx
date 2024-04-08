@@ -20,7 +20,7 @@ const StatsProjectPage: NextPage = () => {
     return (
         <>
             <Head>
-                <title>{project?.title} - Statistics</title>
+                <title>{project?.title} • Statistics</title>
             </Head>
             <Navbar />
             {StatsWindow(project)}

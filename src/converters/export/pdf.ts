@@ -1,10 +1,14 @@
 import { TDocumentDefinitions } from "pdfmake/interfaces";
+import { ExportDataPDF } from "@components/projects/export/ExportProjectContainer";
+import { env } from "process";
+import { JSONContent } from "@tiptap/react";
+import { getNodeData } from "@src/lib/editor/screenplay";
+import { ScreenplayElement as SE } from "@src/lib/utils/enums";
 import * as pdfMake from "pdfmake/build/pdfmake";
-import { ExportData, ExportDataPDF } from "@components/projects/export/ExportProjectContainer";
 
 const LOCAL = "http://localhost:3000";
 const PRODUCTION = "https://scriptio.app";
-const BASE_URL = PRODUCTION;
+const BASE_URL = env.NODE_ENV === "production" ? PRODUCTION : LOCAL;
 
 const fonts = {
     CourierPrime: {
@@ -15,7 +19,8 @@ const fonts = {
     },
 };
 
-const DEFAULT_OFFSET = 12;
+const DEFAULT_OFFSET = 13;
+
 const addOffset = (pdfNodes: any[]) => {
     pdfNodes.push(getPDFNodeTemplate("offset", ""));
 };
@@ -54,14 +59,14 @@ const getWatermarkData = (text: string) => {
     };
 };
 
-const initPDF = (exportData: ExportData, pdfNodes: any[]): TDocumentDefinitions => {
+const generatePDF = (exportData: ExportDataPDF, pdfNodes: any[]): TDocumentDefinitions => {
     return {
         info: {
             title: exportData.title,
             author: exportData.author,
         },
         content: pdfNodes,
-        pageMargins: [105, 70, 70, 70],
+        pageMargins: exportData.margins,
         defaultStyle: {
             font: "CourierPrime",
             fontSize: 12,
@@ -109,34 +114,29 @@ const initPDF = (exportData: ExportData, pdfNodes: any[]): TDocumentDefinitions 
 
 /**
  * Export editor JSON screenplay to .pdf format
- * @param title screenplay title
- * @param author screenplay author
+ * @param exportData PDF export settings
  * @param json editor content JSON
  */
-export const exportToPDF = async (json: any, exportData: ExportDataPDF) => {
+export const exportToPDF = async (json: JSONContent, exportData: ExportDataPDF) => {
     const characters = exportData.characters;
     const nodes = json.content!;
     let pdfNodes = [];
 
     for (let i = 0; i < nodes.length; i++) {
-        if (!nodes[i]["content"]) {
-            continue;
-        }
+        const node = getNodeData(nodes[i]);
+        if (node.type === SE.None) continue;
 
-        const text: string = nodes[i]["content"]![0]["text"]!;
-        const type: string = nodes[i]["attrs"]!["class"];
-
-        let nextType = "action";
+        let nextType = SE.Action;
         if (i + 1 < nodes.length) nextType = nodes[i + 1]["attrs"]!["class"];
 
         // Don't export unselected characters
-        if (type === "character" && characters && !characters.includes(text)) {
+        if (node.type === SE.Character && characters && !characters.includes(node.text)) {
             let j = i + 1;
             for (; j < nodes.length; j++) {
-                const typeJ: string = nodes[j]["attrs"]!["class"];
-                if (typeJ === "dialogue" || typeJ === "parenthetical") {
-                    continue;
-                }
+                const currNode = getNodeData(nodes[j]);
+                const isCharacterOrParenthetical = currNode.type === SE.Character || currNode.type === SE.Parenthetical;
+
+                if (isCharacterOrParenthetical) continue;
 
                 break;
             }
@@ -144,49 +144,43 @@ export const exportToPDF = async (json: any, exportData: ExportDataPDF) => {
             continue;
         }
 
-        switch (type) {
-            case "scene":
-                pdfNodes.push(getPDFTableTemplate(text.toUpperCase(), "scene"));
+        switch (node.type) {
+            case SE.Scene:
+                pdfNodes.push(getPDFTableTemplate(node.text.toUpperCase(), "scene"));
                 addOffset(pdfNodes);
                 break;
-            case "character":
-                pdfNodes.push(getPDFNodeTemplate("character", text.toUpperCase()));
+            case SE.Character:
+                pdfNodes.push(getPDFNodeTemplate("character", node.text.toUpperCase()));
                 break;
-            case "dialogue":
-                pdfNodes.push(getPDFNodeTemplate("dialogue", text));
-                if (nextType !== "parenthetical") {
+            case SE.Dialogue:
+                pdfNodes.push(getPDFNodeTemplate("dialogue", node.text));
+                if (nextType !== SE.Parenthetical) {
                     addOffset(pdfNodes);
                 }
                 break;
-            case "parenthetical":
-                pdfNodes.push(getPDFNodeTemplate("parenthetical", "(" + text + ")"));
+            case SE.Parenthetical:
+                pdfNodes.push(getPDFNodeTemplate("parenthetical", "(" + node.text + ")"));
                 break;
-            case "transition":
-                pdfNodes.push(getPDFNodeTemplate("transition", text.toUpperCase() + ":"));
+            case SE.Transition:
+                pdfNodes.push(getPDFNodeTemplate("transition", node.text.toUpperCase() + ":"));
                 break;
-            case "section":
-                pdfNodes.push(getPDFNodeTemplate("section", text.toUpperCase()));
+            case SE.Section:
+                pdfNodes.push(getPDFNodeTemplate("section", node.text.toUpperCase()));
                 break;
-            case "note":
+            case SE.Note:
                 if (exportData.notes) {
-                    pdfNodes.push(getPDFTableTemplate(text, "note"));
+                    pdfNodes.push(getPDFTableTemplate(node.text, "note"));
                     addOffset(pdfNodes);
                 }
                 break;
             default:
-                pdfNodes.push(getPDFNodeTemplate("action", text));
+                pdfNodes.push(getPDFNodeTemplate("action", node.text));
         }
     }
 
-    let pdf = initPDF(exportData, pdfNodes);
+    let pdf = generatePDF(exportData, pdfNodes);
     if (exportData.watermark) {
-        pdf.watermark = {
-            text: exportData.author,
-            color: "grey",
-            opacity: 0.15,
-            bold: true,
-            italics: false,
-        };
+        pdf.watermark = getWatermarkData(exportData.author);
     }
 
     pdfMake.createPdf(pdf, undefined, fonts).open();

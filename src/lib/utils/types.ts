@@ -26,6 +26,7 @@ export type Project = {
     poster: string;
     description: string | null;
     screenplay: JSONContent;
+    titlePage: JSONContent;
     characters: CharacterMap;
 };
 
@@ -66,6 +67,7 @@ export type ProjectUpdateDTO = {
     title?: string;
     description?: string;
     screenplay?: JSONContent;
+    titlePage?: JSONContent;
     poster?: string;
     characters?: CharacterMap;
 };

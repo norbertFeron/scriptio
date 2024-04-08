@@ -1,24 +1,26 @@
 /* Components */
-import Screenplay from "../Screenplay";
+import TitlePageSidebar from "./TitlePageSidebar";
+import { EditorContent } from "@tiptap/react";
+import { Popup } from "@components/popup/Popup";
 
 /* Utils */
+import { ProjectContext } from "@src/context/ProjectContext";
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "@src/context/UserContext";
 import { SaveStatus, ScreenplayElement, Style, TitlePageElement } from "@src/lib/utils/enums";
 import { Project } from "@src/lib/utils/types";
 
 /* Styles */
-import styles from "../ScreenplayAndSidebars.module.css";
-import { ProjectContext } from "@src/context/ProjectContext";
-import { applyElement, insertElement, useTitleEditor } from "@src/lib/editor/editor";
-import { Popup } from "@components/popup/Popup";
-import ScreenplayTitleSidebar from "./ScreenplayTitleSidebar";
+import styles from "./TitlePageAndSidebar.module.css";
+import editor_ from "../screenplay/Screenplay.module.css";
+import { applyElement, insertElement, useTitlePageEditor } from "@src/lib/editor/editor";
+import TitlePageEditor from "./TitlePageEditor";
 
-type ScreenplayTitleProps = {
+type TitlePageAndSidebarProps = {
     project: Project;
 };
 
-const ScreenplayTitle = ({ project }: ScreenplayTitleProps) => {
+const TitlePageAndSidebar = ({ project }: TitlePageAndSidebarProps) => {
     const userCtx = useContext(UserContext);
     const projectCtx = useContext(ProjectContext);
 
@@ -30,7 +32,7 @@ const ScreenplayTitle = ({ project }: ScreenplayTitleProps) => {
         if (applyStyle && titleEditor) applyElement(titleEditor, element);
     };
 
-    const titleEditor = useTitleEditor(project.screenplay, setActiveElement, setSelectedStyles);
+    const titleEditor = useTitlePageEditor(project.titlePage, setActiveElement, setSelectedStyles);
 
     titleEditor?.setOptions({
         autofocus: "end",
@@ -90,11 +92,9 @@ const ScreenplayTitle = ({ project }: ScreenplayTitleProps) => {
         }
     };
 
-    const onUnload = (e: BeforeUnloadEvent) => {
+    const onUnload = () => {
         if (projectCtx.saveStatus === SaveStatus.Saving) {
             let confirmationMessage = "Are you sure you want to leave?";
-
-            e.returnValue = confirmationMessage;
             return confirmationMessage;
         }
     };
@@ -112,10 +112,10 @@ const ScreenplayTitle = ({ project }: ScreenplayTitleProps) => {
     return (
         <div className={styles.container}>
             <Popup />
-            <div className={styles.screenplay}>
-                <Screenplay editor={titleEditor} />
+            <div className={styles.title_page}>
+                <TitlePageEditor editor={titleEditor} />
             </div>
-            <ScreenplayTitleSidebar
+            <TitlePageSidebar
                 selectedStyles={selectedStyles}
                 setActiveStyles={setSelectedStyles}
                 selectedElement={selectedElement}
@@ -125,4 +125,4 @@ const ScreenplayTitle = ({ project }: ScreenplayTitleProps) => {
     );
 };
 
-export default ScreenplayTitle;
+export default TitlePageAndSidebar;
