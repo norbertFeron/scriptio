@@ -4,7 +4,7 @@ import { ProjectContextType } from "@src/context/ProjectContext";
 
 /* Nodes */
 export type NodeData = {
-    type: ScreenplayElement;
+    type: ScreenplayElement | "Page";
     content: any[]; // contains marks (bold, italic, etc.)
     text: string; // contains only text
 };
@@ -48,7 +48,15 @@ export const getNodeFlattenContent = (content: any[]) => {
 };
 
 export const getNodeData = (node: JSONContent): NodeData => {
-    const type: ScreenplayElement = node.attrs?.class;
+    if (node.type === "Page") {
+        return {
+            type: "Page",
+            content: [],
+            text: "",
+        };
+    }
+
+    const type: ScreenplayElement = node.type as ScreenplayElement;
     const content: JSONContent[] = node.content!;
     const text = getNodeFlattenContent(content);
 

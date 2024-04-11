@@ -57,6 +57,7 @@ export type DataResult<T> = {
 // Data Transfer Objects
 export type ProjectCreationDTO = {
     title: string;
+    screenplay: JSONContent;
     userId?: number;
     description?: string;
     poster?: string;
