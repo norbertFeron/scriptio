@@ -8,7 +8,7 @@ import sidebar from "./EditorSidebar.module.css";
 import { join } from "@src/lib/utils/misc";
 import { ScreenplayElement, Style } from "@src/lib/utils/enums";
 import { Dispatch, SetStateAction, useContext } from "react";
-import { applyMarkToggle } from "@src/lib/editor/editor";
+import { applyMarkToggle } from "@src/lib/editor/utils";
 import { ProjectContext } from "@src/context/ProjectContext";
 import { UserContext } from "@src/context/UserContext";
 import { Editor } from "@tiptap/react";

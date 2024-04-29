@@ -15,9 +15,10 @@ import { computeFullCharactersData } from "@src/lib/editor/characters";
 /* Styles */
 import styles from "./ScreenplayAndSidebars.module.css";
 import { ProjectContext } from "@src/context/ProjectContext";
-import { applyElement, insertElement, insertPage, insertPageBreak, useScreenplayEditor } from "@src/lib/editor/editor";
+import { applyElement, insertElement, insertPage } from "@src/lib/editor/utils";
 import { Popup } from "@components/popup/Popup";
 import ScreenplayEditor from "./ScreenplayEditor";
+import { useScreenplayEditor } from "@src/lib/editor/hooks";
 
 type ScreenplayAndSidebarsProps = {
     project: Project;
